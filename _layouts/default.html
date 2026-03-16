@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en-US' }}">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}" media="screen" type="text/css">
+    <link rel="stylesheet" href="{{ '/assets/css/print.css' | relative_url }}" media="print" type="text/css">
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    {% seo %}
+    {% include head-custom.html %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js" async></script>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <a href="{{ '/' | absolute_url }}">
+          <h1>{{ site.title | default: site.github.repository_name }}</h1>
+        </a>
+        <h2>{{ site.description | default: site.github.project_tagline }}</h2>
+        {% if site.github.is_project_page %}
+          <a href="{{ site.github.repository_url }}" class="button"><small>View project on</small> GitHub</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h2>Upload a DOCX file to convert it to Markdown:</h2>
+          <!-- File Upload Input -->
+          <input type="file" id="fileInput" accept=".docx" aria-label="Upload a DOCX file">
+
+          <!-- Loading Indicator -->
+          <div id="loadingIndicator" style="display:none;">Processing...</div>
+
+          <!-- Download Button -->
+          <button id="downloadBtn" style="display:none;" onclick="downloadMarkdown()" aria-label="Download converted markdown file">Download Markdown</button>
+
+          <!-- Output Area for Converted Markdown -->
+          <h2>Converted Markdown:</h2>
+          <pre id="output" style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;"></pre>
+
+          <!-- Conversion Script -->
+          <script>
+            let convertedMarkdown = '';
+
+            document.getElementById('fileInput').addEventListener('change', function(event) {
+              const file = event.target.files[0];
+              
+              if (file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                alert('Please upload a valid DOCX file.');
+                return;
+              }
+
+              if (file) {
+                document.getElementById('loadingIndicator').style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                  const arrayBuffer = event.target.result;
+                  mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+                    .then(function(result) {
+                      const turndownService = new TurndownService();
+                      convertedMarkdown = turndownService.turndown(result.value);
+                      document.getElementById('output').textContent = convertedMarkdown;
+                      document.getElementById('downloadBtn').style.display = 'block';
+                      document.getElementById('loadingIndicator').style.display = 'none';
+                    })
+                    .catch(function(error) {
+                      console.error('Conversion error: ', error);
+                      document.getElementById('output').textContent = 'Error: Conversion failed. Please check your file and try again.';
+                      document.getElementById('loadingIndicator').style.display = 'none';
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+              }
+            });
+
+            function downloadMarkdown() {
+              const blob = new Blob([convertedMarkdown], {type: 'text/markdown'});
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'converted.md';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);  // Clean up the URL object
+            }
+          </script>
+
+          <h2>README:</h2>
+          {{ content }}
+        </section>
+
+        <aside id="sidebar">
+          {% if site.show_downloads %}
+            <a href="{{ site.github.zip_url }}" class="button">
+              <small>Download</small>
+              .zip file
+            </a>
+          {% endif %}
+
+          {% if site.github.is_project_page %}
+            <p class="repo-owner"><a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</p>
+          {% endif %}
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</p>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>
