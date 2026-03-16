@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>DOCX2MD-Web - DOCX to Markdown Converter</title>
+    <meta name="description" content="DOCX to Markdown Converter">
+    <style>
+      :root {
+        --primary-color: #00d4ff;
+        --secondary-color: #0088cc;
+        --dark-color: #0a192f;
+        --light-color: #e6f1ff;
+        --accent-color: #7b61ff;
+        --success-color: #00ff88;
+        --text-color: #f0f4f8;
+        --border-color: rgba(0, 212, 255, 0.3);
+        --shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--dark-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        background-image: 
+          radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 20%),
+          radial-gradient(circle at 90% 80%, rgba(123, 97, 255, 0.1) 0%, transparent 20%);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(10, 25, 47, 0.8) 100%);
+        border-radius: 20px;
+        margin-bottom: 40px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        animation: pulse 3s infinite;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { opacity: 0.5; }
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 30px 0 20px;
+        color: var(--primary-color);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: rgba(240, 244, 248, 0.7);
+        margin-bottom: 30px;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      @media (min-width: 768px) {
+        .main-content {
+          grid-template-columns: 2fr 1fr;
+        }
+      }
+
+      .converter-section {
+        background: rgba(10, 25, 47, 0.8);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(10px);
+      }
+
+      .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 10px;
+        padding: 40px 20px;
+        text-align: center;
+        margin-bottom: 30px;
+        transition: var(--transition);
+        cursor: pointer;
+      }
+
+      .upload-area:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+      }
+
+      .upload-area input[type="file"] {
+        display: none;
+      }
+
+      .upload-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+      }
+
+      .upload-text {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
+
+      .upload-subtext {
+        font-size: 0.9rem;
+        color: rgba(240, 244, 248, 0.6);
+      }
+
+      .loading-indicator {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+        color: var(--primary-color);
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(0, 212, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: var(--primary-color);
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .download-btn {
+        display: none;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+      }
+
+      .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+      }
+
+      .output-area {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .output-area::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .output-area::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      .output-area::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 4px;
+      }
+
+      .sidebar {
+        background: rgba(10, 25, 47, 0.8);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(10px);
+      }
+
+      .feature-list {
+        list-style: none;
+        margin-top: 20px;
+      }
+
+      .feature-list li {
+        margin-bottom: 15px;
+        padding-left: 25px;
+        position: relative;
+      }
+
+      .feature-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--success-color);
+        font-weight: bold;
+      }
+
+      .info-section {
+        background: rgba(10, 25, 47, 0.8);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(10px);
+        margin-bottom: 40px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      @media (min-width: 768px) {
+        .info-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .info-card {
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        transition: var(--transition);
+      }
+
+      .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 212, 255, 0.2);
+      }
+
+      .info-card h3 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 40px 20px;
+        background: rgba(10, 25, 47, 0.9);
+        border-radius: 20px;
+        margin-top: 60px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .footer-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .social-link {
+        color: var(--text-color);
+        font-size: 1.2rem;
+        transition: var(--transition);
+      }
+
+      .social-link:hover {
+        color: var(--primary-color);
+      }
+
+      .copyright {
+        font-size: 0.9rem;
+        color: rgba(240, 244, 248, 0.6);
+        margin-top: 20px;
+      }
+
+      .language-switcher {
+        display: flex;
+        gap: 10px;
+      }
+
+      .lang-btn {
+        padding: 8px 16px;
+        border: 1px solid var(--border-color);
+        background: rgba(10, 25, 47, 0.8);
+        color: var(--text-color);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .lang-btn:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+      }
+
+      .lang-btn.active {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-color: var(--primary-color);
+        color: white;
+      }
+
+      @media (max-width: 767px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        header {
+          padding: 40px 20px;
+        }
+
+        .converter-section,
+        .sidebar,
+        .info-section {
+          padding: 20px;
+        }
+
+        .upload-area {
+          padding: 30px 15px;
+        }
+
+        .upload-icon {
+          font-size: 3rem;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js" async></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+          <h1>DOCX2MD-Web</h1>
+          <div class="language-switcher">
+            <button id="zh-btn" class="lang-btn active">中文</button>
+            <button id="en-btn" class="lang-btn">English</button>
+          </div>
+        </div>
+        <p class="subtitle" data-lang="zh">即时将DOCX文件转换为Markdown格式</p>
+        <p class="subtitle" data-lang="en" style="display: none;">Convert DOCX files to Markdown format instantly</p>
+      </header>
+
+      <div class="main-content">
+        <div class="converter-section">
+          <h2 data-lang="zh">上传DOCX文件</h2>
+          <h2 data-lang="en" style="display: none;">Upload DOCX File</h2>
+          <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept=".docx" aria-label="Upload a DOCX file">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text" data-lang="zh">点击或拖拽文件到此处</p>
+            <p class="upload-text" data-lang="en" style="display: none;">Click or drag file to this area</p>
+            <p class="upload-subtext" data-lang="zh">仅支持.docx文件</p>
+            <p class="upload-subtext" data-lang="en" style="display: none;">Supports .docx files only</p>
+          </div>
+
+          <div class="loading-indicator" id="loadingIndicator">
+            <span class="loading-spinner"></span>
+            <span data-lang="zh">处理中...</span>
+            <span data-lang="en" style="display: none;">Processing...</span>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin: 20px 0;">
+            <button class="download-btn" id="downloadBtn" onclick="downloadMarkdown()" data-lang="zh">下载Markdown</button>
+            <button class="download-btn" id="downloadBtn" onclick="downloadMarkdown()" data-lang="en" style="display: none;">Download Markdown</button>
+            <button class="download-btn" id="copyBtn" onclick="copyMarkdown()" data-lang="zh">复制Markdown</button>
+            <button class="download-btn" id="copyBtn" onclick="copyMarkdown()" data-lang="en" style="display: none;">Copy Markdown</button>
+          </div>
+
+          <h2 data-lang="zh">转换后的Markdown</h2>
+          <h2 data-lang="en" style="display: none;">Converted Markdown</h2>
+          <div class="output-area" id="output"></div>
+        </div>
+
+        <div class="sidebar">
+          <h2 data-lang="zh">功能特点</h2>
+          <h2 data-lang="en" style="display: none;">Features</h2>
+          <ul class="feature-list">
+            <li data-lang="zh">基于浏览器的转换</li>
+            <li data-lang="en" style="display: none;">Browser-based conversion</li>
+            <li data-lang="zh">无需服务器上传</li>
+            <li data-lang="en" style="display: none;">No server uploads</li>
+            <li data-lang="zh">快速高效</li>
+            <li data-lang="en" style="display: none;">Fast and efficient</li>
+            <li data-lang="zh">保留文档结构</li>
+            <li data-lang="en" style="display: none;">Preserves document structure</li>
+            <li data-lang="zh">干净的Markdown输出</li>
+            <li data-lang="en" style="display: none;">Clean Markdown output</li>
+            <li data-lang="zh">免费使用</li>
+            <li data-lang="en" style="display: none;">Free to use</li>
+          </ul>
+
+          <h2 data-lang="zh">使用方法</h2>
+          <h2 data-lang="en" style="display: none;">How It Works</h2>
+          <p data-lang="zh">1. 上传您的DOCX文件</p>
+          <p data-lang="en" style="display: none;">1. Upload your DOCX file</p>
+          <p data-lang="zh">2. 等待转换完成</p>
+          <p data-lang="en" style="display: none;">2. Wait for conversion</p>
+          <p data-lang="zh">3. 下载Markdown文件</p>
+          <p data-lang="en" style="display: none;">3. Download the Markdown file</p>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2 data-lang="zh">关于此工具</h2>
+        <h2 data-lang="en" style="display: none;">About This Tool</h2>
+        <div class="info-grid">
+          <div class="info-card">
+            <h3 data-lang="zh">隐私优先</h3>
+            <h3 data-lang="en" style="display: none;">Privacy First</h3>
+            <p data-lang="zh">所有转换都在您的浏览器本地进行。您的文件永远不会离开您的设备，确保完全的隐私和安全。</p>
+            <p data-lang="en" style="display: none;">All conversions happen locally in your browser. Your files never leave your device, ensuring complete privacy and security.</p>
+          </div>
+          <div class="info-card">
+            <h3 data-lang="zh">高级转换</h3>
+            <h3 data-lang="en" style="display: none;">Advanced Conversion</h3>
+            <p data-lang="zh">使用Mammoth.js和Turndown.js确保从DOCX到HTML再到Markdown的准确转换，保留格式和结构。</p>
+            <p data-lang="en" style="display: none;">Uses Mammoth.js and Turndown.js to ensure accurate conversion from DOCX to HTML to Markdown, preserving formatting and structure.</p>
+          </div>
+          <div class="info-card">
+            <h3 data-lang="zh">响应式设计</h3>
+            <h3 data-lang="en" style="display: none;">Responsive Design</h3>
+            <p data-lang="zh">在桌面、平板和移动设备上无缝工作。无论使用什么设备，都能享受同样出色的体验。</p>
+            <p data-lang="en" style="display: none;">Works seamlessly on desktop, tablet, and mobile devices. Enjoy the same great experience no matter what device you're using.</p>
+          </div>
+          <div class="info-card">
+            <h3 data-lang="zh">开源</h3>
+            <h3 data-lang="en" style="display: none;">Open Source</h3>
+            <p data-lang="zh">此工具是开源的，免费使用。欢迎贡献或修改以满足您的需求。</p>
+            <p data-lang="en" style="display: none;">This tool is open source and free to use. Feel free to contribute or modify it to suit your needs.</p>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="footer-content">
+          <h2>DOCX2MD-Web</h2>
+          <p data-lang="zh">DOCX转Markdown转换器</p>
+          <p data-lang="en" style="display: none;">DOCX to Markdown Converter</p>
+          <div class="social-links">
+            <a href="https://github.com/mydaozun/d2m" class="social-link" target="_blank">GitHub</a>
+            <a href="https://mmaiverse.com/" class="social-link" target="_blank">52DH导航网</a>
+          </div>
+          <p class="copyright">© 2026 DOCX2MD-Web. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      let convertedMarkdown = '';
+
+      // Language switching functionality
+      function switchLanguage(lang) {
+        // Hide all elements
+        document.querySelectorAll('[data-lang]').forEach(el => {
+          el.style.display = 'none';
+        });
+        
+        // Show elements with the selected language
+        document.querySelectorAll(`[data-lang="${lang}"]`).forEach(el => {
+          el.style.display = '';
+        });
+        
+        // Update active button
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.getElementById(`${lang}-btn`).classList.add('active');
+      }
+
+      // Event listeners for language buttons
+      document.getElementById('zh-btn').addEventListener('click', () => switchLanguage('zh'));
+      document.getElementById('en-btn').addEventListener('click', () => switchLanguage('en'));
+
+      document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        
+        if (file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+          const currentLang = document.querySelector('.lang-btn.active').id.split('-')[0];
+          if (currentLang === 'zh') {
+            alert('请上传有效的DOCX文件。');
+          } else {
+            alert('Please upload a valid DOCX file.');
+          }
+          return;
+        }
+
+        if (file) {
+          document.getElementById('loadingIndicator').style.display = 'block';
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            const arrayBuffer = event.target.result;
+            mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+              .then(function(result) {
+                const turndownService = new TurndownService();
+                convertedMarkdown = turndownService.turndown(result.value);
+                document.getElementById('output').textContent = convertedMarkdown;
+                
+                // Show the appropriate download and copy buttons based on current language
+                const currentLang = document.querySelector('.lang-btn.active').id.split('-')[0];
+                document.querySelectorAll('.download-btn').forEach(btn => {
+                  btn.style.display = 'none';
+                });
+                document.querySelectorAll('#copyBtn').forEach(btn => {
+                  btn.style.display = 'none';
+                });
+                document.querySelector(`.download-btn[data-lang="${currentLang}"]`).style.display = 'block';
+                document.querySelector(`#copyBtn[data-lang="${currentLang}"]`).style.display = 'block';
+                
+                document.getElementById('loadingIndicator').style.display = 'none';
+              })
+              .catch(function(error) {
+                console.error('Conversion error: ', error);
+                const currentLang = document.querySelector('.lang-btn.active').id.split('-')[0];
+                if (currentLang === 'zh') {
+                  document.getElementById('output').textContent = '错误：转换失败。请检查您的文件并重试。';
+                } else {
+                  document.getElementById('output').textContent = 'Error: Conversion failed. Please check your file and try again.';
+                }
+                document.getElementById('loadingIndicator').style.display = 'none';
+              });
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      });
+
+      function downloadMarkdown() {
+        const blob = new Blob([convertedMarkdown], {type: 'text/markdown'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'converted.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);  // Clean up the URL object
+      }
+
+      function copyMarkdown() {
+        if (convertedMarkdown) {
+          navigator.clipboard.writeText(convertedMarkdown)
+            .then(() => {
+              const currentLang = document.querySelector('.lang-btn.active').id.split('-')[0];
+              if (currentLang === 'zh') {
+                alert('Markdown内容已复制到剪贴板！');
+              } else {
+                alert('Markdown content has been copied to clipboard!');
+              }
+            })
+            .catch(err => {
+              console.error('Failed to copy: ', err);
+              const currentLang = document.querySelector('.lang-btn.active').id.split('-')[0];
+              if (currentLang === 'zh') {
+                alert('复制失败，请手动复制内容。');
+              } else {
+                alert('Copy failed, please copy the content manually.');
+              }
+            });
+        } else {
+          const currentLang = document.querySelector('.lang-btn.active').id.split('-')[0];
+          if (currentLang === 'zh') {
+            alert('没有可复制的内容，请先上传文件并转换。');
+          } else {
+            alert('No content to copy, please upload a file and convert first.');
+          }
+        }
+      }
+
+      // Update the language switching function to handle copy button
+      function switchLanguage(lang) {
+        // Hide all elements
+        document.querySelectorAll('[data-lang]').forEach(el => {
+          el.style.display = 'none';
+        });
+        
+        // Show elements with the selected language
+        document.querySelectorAll(`[data-lang="${lang}"]`).forEach(el => {
+          el.style.display = '';
+        });
+        
+        // Update active button
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.getElementById(`${lang}-btn`).classList.add('active');
+        
+        // Show the appropriate download and copy buttons based on current language
+        if (convertedMarkdown) {
+          document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.style.display = 'none';
+          });
+          document.querySelector(`.download-btn[data-lang="${lang}"]`).style.display = 'block';
+          document.querySelector(`#copyBtn[data-lang="${lang}"]`).style.display = 'block';
+        }
+      }
+    </script>
+  </body>
+</html>
