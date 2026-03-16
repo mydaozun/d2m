@@ -1,12 +1,6 @@
 [build]
-  command = "bundle exec jekyll build"
-  publish = "_site"
+  command = "echo 'Building static site'"
+  publish = "."
 
 [build.environment]
-  JEKYLL_ENV = "production"
-
-[context.production]
-  command = "bundle exec jekyll build --trace"
-
-[context.deploy-preview]
-  command = "bundle exec jekyll build --trace"
+  NODE_ENV = "production"

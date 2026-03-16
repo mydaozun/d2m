@@ -1,32 +1,39 @@
-# DOCX to Markdown Converter using Github Pages
-todo: update using https://github.com/microsoft/markitdown
-GitHub Pages site that allows users to upload `.docx` file and convert them to Markdown (`.md`). The site uses JavaScript libraries Mammoth.js and Turndown.js to perform the conversion directly in the browser.
-### - https://michaelakridge-noaa.github.io/docx-to-md-web/
+# 使用Github Pages的DOCX转Markdown转换器
 
-## Features
-- **Upload and Convert**: Users can upload `.docx` files, which are then converted to Markdown.
-- **Download Markdown**: After conversion, users can download the Markdown file with a single click.
+TODO: 使用 <https://github.com/microsoft/markitdown> 进行更新
+这是一个静态托管网站，允许用户上传 `.docx` 文件并将其转换为Markdown (`.md`)。该网站使用JavaScript库Mammoth.js和Turndown.js在浏览器中直接执行转换。
 
-[![](./docs/s01.png)](https://michaelakridge-noaa.github.io/docx-to-markdown-web)
+### - <https://michaelakridge-noaa.github.io/docx-to-md-web/>
 
-## How It Works
-1. **Upload a DOCX File**: Click on the "Choose File" button to select a `.docx` file from your computer.
-2. **Conversion**: The file is converted to Markdown using Mammoth.js (for DOCX to HTML) and Turndown.js (for HTML to Markdown).
-3. **Download**: Once converted, a "Download Markdown" button will appear. Click it to download the converted file as `converted.md`.
+## 功能
 
-## Usage
+- **上传和转换**：用户可以上传 `.docx` 文件，然后将其转换为Markdown。
+- **下载Markdown**：转换后，用户可以单击一下下载Markdown文件。
 
-This site is hosted on GitHub Pages. Simply visit the site, upload your `.docx` file, and download the Markdown version.
+[!\[\](./docs/s01.png null)](https://michaelakridge-noaa.github.io/docx-to-markdown-web)
 
-## Credits / Libraries Used
+## 工作原理
 
-- [Architect Jekyll Theme](https://github.com/pages-themes/architect): for GitHub Pages
-- [Mammoth.js](https://github.com/mwilliamson/mammoth.js): Converts `.docx` files to HTML.
-- [Turndown.js](https://github.com/domchristie/turndown): Converts HTML to Markdown.
+1. **上传DOCX文件**：点击"选择文件"按钮从您的计算机中选择一个 `.docx` 文件。
+2. **转换**：使用Mammoth.js（用于DOCX到HTML）和Turndown.js（用于HTML到Markdown）将文件转换为Markdown。
+3. **下载**：转换完成后，会出现"下载Markdown"按钮。点击它将转换后的文件下载为 `converted.md`。
 
-----------
-### Disclaimer
-This repository is a scientific product and is not official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project content is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.
+## 使用方法
 
-#### License
-See the [LICENSE.md](./LICENSE.md) for details
+此网站托管在GitHub Pages上。只需访问该网站，上传您的 `.docx` 文件，然后下载Markdown版本。
+
+## credits / 使用的库
+
+- [Architect Jekyll Theme](https://github.com/pages-themes/architect)：用于GitHub Pages
+- [Mammoth.js](https://github.com/mwilliamson/mammoth.js)：将 `.docx` 文件转换为HTML。
+- [Turndown.js](https://github.com/domchristie/turndown)：将HTML转换为Markdown。
+
+***
+
+### 免责声明
+
+本存储库是一个科学产品，不是美国国家海洋和大气管理局或美国商务部的官方通信。所有NOAA GitHub项目内容均按"原样"提供，用户对其使用承担责任。因使用本GitHub项目而对商务部或商务部局提出的任何索赔将受所有适用的联邦法律管辖。任何通过服务标记、商标、制造商或其他方式对特定商业产品、流程或服务的引用，均不构成或暗示商务部对其的认可、推荐或支持。商务部的印章和标志，或DOC局的印章和标志，不得以任何方式用于暗示DOC或美国政府对任何商业产品或活动的认可。
+
+#### 许可证
+
+有关详细信息，请参阅 [LICENSE.md](./LICENSE.md)
